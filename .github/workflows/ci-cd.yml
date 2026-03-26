@@ -1,4 +1,4 @@
-name: DevOps Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ECR_REPOSITORY }} -f docker/Dockerfile .
+          docker build -t ${{ secrets.ECR_REPOSITORY }}:latest -f docker/Dockerfile .
 
       - name: Tag Docker image
         run: |
