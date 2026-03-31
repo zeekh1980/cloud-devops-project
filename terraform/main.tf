@@ -1,36 +1,113 @@
+terraform {
+  backend "s3" {
+    bucket         = "devops-terraform-state-zee123"
+    key            = "terraform.tfstate"
+    region         = "eu-north-1"
+    dynamodb_table = "terraform-lock"
+  }
+}
 provider "aws" {
   region = "eu-north-1"
 }
 
-# Create ECR repository
-resource "aws_ecr_repository" "devops-app-terraform" {
-  name = "devops-app-terraform"
-}
-
-# Create ECS cluster
-resource "aws_ecs_cluster" "devops_cluster" {
+# ECS Cluster
+resource "aws_ecs_cluster" "main" {
   name = "devops-cluster"
 }
 
-# ECS Task definition
-resource "aws_ecs_task_definition" "app_task" {
+# IAM Role for ECS Task Execution
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# Attach AWS managed policy
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+# Task Definition
+resource "aws_ecs_task_definition" "app" {
   family                   = "devops-app"
-  requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
 
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+
   container_definitions = jsonencode([
     {
-      name  = "devops-app"
-      image = "nginx"
+      name      = "app"
+      image     = "${var.ecr_repo_url}:latest"
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 3000
+          hostPort      = 3000
         }
       ]
     }
   ])
+}
+
+# VPC (default)
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Subnets
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Security Group
+resource "aws_security_group" "ecs_sg" {
+  name        = "ecs-security-group"
+  description = "Allow HTTP"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# ECS Service
+resource "aws_ecs_service" "app" {
+  name            = "devops-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.app.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  network_configuration {
+    subnets         = data.aws_subnets.default.ids
+    security_groups = [aws_security_group.ecs_sg.id]
+    assign_public_ip = true
+  }
 }

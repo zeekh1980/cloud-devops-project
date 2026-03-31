@@ -5,6 +5,8 @@ app.get("/", (req,res)=>{
   res.send("Hello from DevOps Cloud Project 🚀")
 })
 
-app.listen(3000,()=>{
-  console.log("App running on port 3000")
+const PORT = 3000
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`App running on port ${PORT}`)
 })
