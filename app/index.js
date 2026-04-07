@@ -2,7 +2,7 @@ const express = require("express")
 const app = express()
 
 app.get("/", (req,res)=>{
-  res.send("Hello from DevOps Cloud Project 🚀")
+  res.send("Version 2 🚀 Auto Deploy Working!")
 })
 
 const PORT = 3000
