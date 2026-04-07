@@ -1,0 +1,1 @@
+ecr_repo_url = "561764227316.dkr.ecr.eu-north-1.amazonaws.com/devops-app-terraform"
