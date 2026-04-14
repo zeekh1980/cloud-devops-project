@@ -5,6 +5,13 @@ app.use(express.urlencoded({ extended: true }))
 
 app.get("/", (req, res) => {
   res.send(`
+    <style>
+      body { font-family: Arial; text-align: center; background: #f4f6f7; }
+      h1 { color: #2c3e50; }
+      button { padding: 10px; background: #3498db; color: white; border: none; }
+      input { padding: 8px; }
+    </style>
+
     <h1>Zipp Logistics 🚚</h1>
     <p>Fast & Reliable Delivery</p>
 
