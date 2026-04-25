@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Zipp Logistics</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f2744;
+    color: white;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 50px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 80px 50px;
+}
+
+.hero-text {
+    max-width: 500px;
+}
+
+.hero h1 {
+    font-size: 48px;
+}
+
+.search-box {
+    background: #1f3c5b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #00b894;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">Zipp Logistics</div>
+<div>Home | About | Contact</div>
+</header>
+
+<section class="hero">
+<div class="hero-text">
+<h1>Smart Shipping Solutions</h1>
+<p>Compare prices and ship worldwide easily.</p>
+</div>
+
+<div class="search-box">
+<form method="POST" action="/track">
+<input name="trackingId" placeholder="Enter Tracking ID">
+<button type="submit">Track Shipment</button>
+</form>
+</div>
+</section>
+
+</body>
+</html>
